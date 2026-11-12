@@ -7,3 +7,8 @@ credentials*.json
 *token*.json
 *.token
 .claude/settings.local.json
+
+benchmark/galerie/
+benchmark/__pycache__/
+benchmark/log_*.txt
+benchmark/queue_stdout.txt

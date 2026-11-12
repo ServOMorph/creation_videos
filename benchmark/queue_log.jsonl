@@ -1,0 +1,7 @@
+{"model": "ti2v_2_2", "exit": 0, "seconds": 5221}
+{"model": "ti2v_2_2_fastwan", "exit": 0, "seconds": 1014}
+{"model": "t2v_sf", "exit": 0, "seconds": 2645}
+{"model": "ltx2_22B_distilled_gguf_q4_k_m", "exit": 0, "seconds": 4543}
+{"model": "ltx2_distilled_gguf_q4_k_m", "exit": 0, "seconds": 2812}
+{"model": "hunyuan_1_5_480_t2v_lightx2v", "exit": 0, "seconds": 4256}
+{"model": "k5_lite_t2v_5s_distil", "exit": 0, "seconds": 3001}
