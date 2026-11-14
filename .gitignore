@@ -12,3 +12,4 @@ benchmark/galerie/
 benchmark/__pycache__/
 benchmark/log_*.txt
 benchmark/queue_stdout.txt
+_contexte/journal_session.md

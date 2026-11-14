@@ -85,3 +85,11 @@ Suffixe ajouté au prompt, même seed et même image : « Cars drive forward in 
 | 3 femme dans la rue | `t2v` | 3224,9 | 5121 | ralenti corrigé |
 
 Limite : un seul cas par modèle ; le sens de circulation des voitures du cas 5 I2V n'a pas été commenté. Le suffixe ne peut pas être généralisé sans test sur d'autres cas.
+
+## Seconde correction du ralenti I2V, cas 5 (2026-11-14)
+
+Prompt complet réécrit (sens de circulation, allure des piétons, caméra fixe) + prompt négatif « slow motion, reversed motion, cars driving backward, static image » ; même image, seed 3005, 81 images (`i2v_vitesse2`).
+
+| Cas | Modèle | Temps (s) | VRAM max (Mio) | Verdict de l'utilisateur |
+|-----|--------|-----------|----------------|--------------------------|
+| 5 scène urbaine | `i2v` | 3512,6 | 5549 | à noter |

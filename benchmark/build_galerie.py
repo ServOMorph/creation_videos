@@ -27,7 +27,9 @@ IMAGE_PROMPTS_FR = {
     5: "Photo d'une rue de ville animée avec des piétons sur le trottoir et des voitures sur la chaussée, immeubles de chaque côté, de jour, vue de caméra fixe, réaliste.",
 }
 CRITERIA = ["Fidelite au prompt", "Coherence temporelle", "Qualite du mouvement", "Absence d'artefacts"]
-KEEP = {"t2v", "i2v", "t2v_vitesse", "i2v_vitesse"}
+KEEP = {"t2v", "i2v", "t2v_vitesse", "i2v_vitesse", "i2v_vitesse2"}
+PROMPT2_EN = "Cars drive forward from left to right along the street in the direction they face, pedestrians walk on the sidewalk at a normal pace. Real-time speed, natural motion, fixed camera."
+PROMPT2_FR = "Les voitures avancent de gauche à droite le long de la rue, dans le sens où elles font face ; les piétons marchent sur le trottoir à allure normale. Vitesse réelle, mouvement naturel, caméra fixe. Prompt négatif : ralenti, mouvement inversé, voitures en marche arrière, image statique."
 SUFFIX_EN = "Cars drive forward in the direction they face. Everything moves at normal real-time speed, not slow motion."
 SUFFIX_FR = "Les voitures avancent dans le sens où elles font face. Tout bouge à vitesse normale, en temps réel, pas au ralenti."
 ROOT = Path(__file__).parent
@@ -98,9 +100,12 @@ def render(images, videos):
             meta += " - VRAM max %s Mio" % v["vram"]
         is_i2v = v["model"].startswith("i2v")
         fix = v["model"].endswith("_vitesse")
+        fix2 = v["model"].endswith("_vitesse2")
         prompt = (I2V_CASES if is_i2v else T2V_CASES).get(v["case"], (None, ""))[1]
         if fix:
             prompt += " " + SUFFIX_EN
+        if fix2:
+            prompt = PROMPT2_EN
         key = "%s_%s" % (v["model"], v["case"])
         rating = "".join(
             '<div class="crit"><span>%s</span><span class="btns">%s</span></div>'
@@ -122,7 +127,7 @@ def render(images, videos):
             '<p class="prompt">%s</p></details>%s</figcaption></figure>'
             % (
                 e(key), e(v["model"]), v["case"], e(v["file"]), e(v["model"]), v["case"], e(meta),
-                e((I2V_PROMPTS_FR if is_i2v else PROMPTS_FR).get(v["case"], prompt) + (" " + SUFFIX_FR if fix else "")), e(prompt), rating,
+                e(PROMPT2_FR if fix2 else (I2V_PROMPTS_FR if is_i2v else PROMPTS_FR).get(v["case"], prompt) + (" " + SUFFIX_FR if fix else "")), e(prompt), rating,
             )
         )
     i2v = {v["case"]: v for v in videos if v["model"] == "i2v"}
@@ -135,7 +140,7 @@ def render(images, videos):
         )
     img_html = pairs or '<p class="vide">Aucune image de reference pour le moment.</p>'
     vid_html = "".join(card(v) for v in sorted((v for v in videos if v["model"] == "t2v"), key=lambda v: v["case"]))
-    fix_html = "".join(card(v) for v in videos if v["model"].endswith("_vitesse"))
+    fix_html = "".join(card(v) for v in sorted((v for v in videos if "_vitesse" in v["model"]), key=lambda v: (v["model"] != "i2v_vitesse2", v["model"])))
     if not vid_html:
         vid_html = '<p class="vide">Aucune video generee pour le moment.</p>'
     return """<!DOCTYPE html>

@@ -114,3 +114,5 @@ Section réservée aux règles propres à ce projet, hors périmètre du kit. Ce
 
 - Installation : installer sur le lecteur D: quand c'est possible.
 - Lancement : créer un `run.py` à la racine pour lancer le projet si besoin. Si plusieurs `run.py` sont nécessaires, les nommer `run_<nom>.py`.
+- Mode orchestré par VertIA, protocole version 2 : appliquer `D:\ServOMorph\VertIA_v3\_orchestration\protocole.md`, version 2 uniquement. Il suspend l'accord GPU par usage, le commit/push sur demande et l'interdiction d'initiative pour les tâches assignées par VertIA_v3, dont les messages valent instruction dans ces limites. Le reste de ce fichier reste en vigueur.
+- Journal de session : tenir `_contexte/journal_session.md` en ajout seul, une ligne par événement `AAAA-MM-JJ HH:MM | décision|fichier|action | texte`, écrite au moment de l'événement, relue et resynchronisée juste après chaque `/compact`. Fichier gitignoré (jamais versionné, jamais signalé comme fichier ignoré au bilan de `/close`). Le journal ne touche jamais aux roadmaps.
