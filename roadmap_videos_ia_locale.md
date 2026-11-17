@@ -59,7 +59,7 @@ Sources : insiderllm.com/guides/local-ai-video-generation, dev.to (Wan 2.2 en 8 
 **⏸ Checkpoint** — Demander à l'utilisateur de faire `/compact` avant de continuer.
   Attendre sa réponse écrite. Ne pas commencer la phase suivante sans confirmation.
 
-### Phase 5 — Lancement et flux de production [EN COURS]
+### Phase 5 — Lancement et flux de production [FAIT]
 - Créer `run.py` à la racine (lancement du modèle retenu), documenter le flux T2V et I2V.
 - Produire une vidéo de bout en bout pour chaque mode.
 - Gate : une vidéo T2V et une vidéo I2V générées avec `run.py`.

@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.3 — 2026-11-17
+
+### Ajouté
+- `run_phase5.py` (enchaînement sous verrou GPU), section Utilisation du `README.md`, `.claude/memory.md`.
+- Section « Phase 5 » en tête de l'artefact de revue (`benchmark/build_galerie.py`).
+
+### Modifié
+- Phase 5 validée : un clip T2V et un clip I2V générés via `run.py`, jugés « Parfait ».
+
 ## v0.2 — 2026-11-17
 
 ### Ajouté

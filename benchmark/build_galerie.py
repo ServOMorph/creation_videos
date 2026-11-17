@@ -32,6 +32,14 @@ PROMPT2_EN = "Cars drive forward from left to right along the street in the dire
 PROMPT2_FR = "Les voitures avancent de gauche à droite le long de la rue, dans le sens où elles font face ; les piétons marchent sur le trottoir à allure normale. Vitesse réelle, mouvement naturel, caméra fixe. Prompt négatif : ralenti, mouvement inversé, voitures en marche arrière, image statique."
 SUFFIX_EN = "Cars drive forward in the direction they face. Everything moves at normal real-time speed, not slow motion."
 SUFFIX_FR = "Les voitures avancent dans le sens où elles font face. Tout bouge à vitesse normale, en temps réel, pas au ralenti."
+PHASE5 = [
+    {"model": "phase5_t2v", "src": r"D:\AI\WanGP\outputs\2026-11-17-21h32m47s_seed1_A fishing boat sails across a calm bay at sunrise,.mp4", "seconds": 3476,
+     "en": "A fishing boat sails across a calm bay at sunrise, gentle waves, seagulls flying, real-time speed, natural motion, steady camera. Negative: slow motion, static image, distorted, blurry.",
+     "fr": "Un bateau de pêche traverse une baie calme au lever du soleil, vagues douces, mouettes en vol, vitesse réelle, mouvement naturel, caméra stable. Négatif : ralenti, image statique, déformé, flou."},
+    {"model": "phase5_i2v", "src": r"D:\AI\WanGP\outputs\2026-11-17-22h29m29s_seed1_The scene comes to life with natural motion at nor.mp4", "seconds": 3406,
+     "en": "The scene comes to life with natural motion at normal speed, steady camera. (image de départ : image1)",
+     "fr": "La scène s'anime avec un mouvement naturel à vitesse normale, caméra stable. (image de départ : image1)"},
+]
 ROOT = Path(__file__).parent
 OUT = ROOT / "galerie"
 RAW = ROOT / "resultats_raw.jsonl"
@@ -89,6 +97,13 @@ def collect():
                         "errors": r.get("errors", []),
                     }
                 )
+    for n, ph in enumerate(PHASE5):
+        src = Path(ph["src"])
+        if not src.exists():
+            continue
+        dst = "%s_%d%s" % (ph["model"], n, src.suffix)
+        shutil.copy2(src, OUT / "videos" / dst)
+        videos.append({"file": "videos/" + dst, "model": ph["model"], "case": 1, "seconds": ph["seconds"], "vram": None, "errors": [], "ph": ph})
     return images, videos
 
 
@@ -102,6 +117,9 @@ def render(images, videos):
         fix = v["model"].endswith("_vitesse")
         fix2 = v["model"].endswith("_vitesse2")
         prompt = (I2V_CASES if is_i2v else T2V_CASES).get(v["case"], (None, ""))[1]
+        ph = v.get("ph")
+        if ph:
+            prompt = ph["en"]
         if fix:
             prompt += " " + SUFFIX_EN
         if fix2:
@@ -116,9 +134,11 @@ def render(images, videos):
             '<p class="prompt">%s</p></details>%s</figcaption></figure>'
             % (
                 e(key), e(v["model"]), v["case"], e(v["file"]), e(v["model"]), v["case"], e(meta),
-                e(PROMPT2_FR if fix2 else (I2V_PROMPTS_FR if is_i2v else PROMPTS_FR).get(v["case"], prompt) + (" " + SUFFIX_FR if fix else "")), e(prompt), rating,
+                e(ph["fr"] if ph else PROMPT2_FR if fix2 else (I2V_PROMPTS_FR if is_i2v else PROMPTS_FR).get(v["case"], prompt) + (" " + SUFFIX_FR if fix else "")), e(prompt), rating,
             )
         )
+    ph_html = "".join(card(v) for v in videos if v["model"].startswith("phase5"))
+    videos = [v for v in videos if not v["model"].startswith("phase5")] + [v for v in videos if v["model"].startswith("phase5")]
     i2v = {v["case"]: v for v in videos if v["model"] == "i2v"}
     i2v_fix = {v["case"]: v for v in videos if v["model"] == "i2v_vitesse"}
     pairs = ""
@@ -158,6 +178,7 @@ pre{white-space:pre-wrap;background:var(--card);padding:10px;border-radius:8px;f
 <h1>Benchmark videos IA locales</h1>
 <p class="sub">%d image(s) de reference - %d video(s). 832x480, seeds fixes.</p>
 <p class="legende">Un commentaire libre par video, enregistre automatiquement.</p>
+<h2>Phase 5 : vidéos générées avec run.py</h2><div class="grid">%s</div>
 <h2>Tests de correction (vitesse normale)</h2><div class="grid">%s</div>
 <h2>Image vers video (i2v) : image de reference puis video</h2><div class="grid">%s</div>
 <h2>Texte vers video (t2v)</h2>
@@ -184,7 +205,7 @@ DB=d;E.textContent="Commentaires enregistres automatiquement.";
 d.collection("commentaires").get().then(function(snap){snap.forEach(function(doc){var v=doc.data();if(v&&v.texte!==undefined&&S[doc.id]===undefined){S[doc.id]=v.texte}});paint()},function(){})
 },function(){})})()
 </script>
-</body></html>""" % (len(images), len(videos), fix_html, img_html, vid_html)
+</body></html>""" % (len(images), len(videos), ph_html, fix_html, img_html, vid_html)
 
 
 def main():
