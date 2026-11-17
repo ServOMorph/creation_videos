@@ -24,6 +24,7 @@
 ## Décisions prises
 - Phase 5 validée par l'utilisateur après visionnage : un clip T2V et un clip I2V jugés « Parfait ».
 - Règle mémoire : toute vidéo générée est placée en premier dans l'artefact (`.claude/memory.md`).
+- Roadmap archivée à la demande de l'utilisateur : `_contexte/archive/roadmap_videos_ia_locale.md` (5 phases terminées).
 
 ## Livrables produits ou modifiés
 - `run_phase5.py` : enchaînement verrou GPU, T2V (3476 s), I2V (3406 s), libération du verrou.

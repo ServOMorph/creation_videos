@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.0 — 2026-11-17
+
+### Modifié
+- Roadmap archivée (5 phases terminées) : `_contexte/archive/roadmap_videos_ia_locale.md` ; nouveau dossier `_contexte/archive/`.
+
 ## v0.3 — 2026-11-17
 
 ### Ajouté
