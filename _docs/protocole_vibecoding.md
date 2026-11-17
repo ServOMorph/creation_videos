@@ -1,5 +1,5 @@
 # Protocole de vibecoding — Documentation générique
-> **v5.33** — Révision du 2026-11-09. Voir [`CHANGELOG.md`](CHANGELOG.md) pour l'historique complet des versions.
+> **v6.10** — Révision du 2026-11-17. Voir [`CHANGELOG.md`](CHANGELOG.md) pour l'historique complet des versions.
 
 ## Pourquoi ce fichier
 
@@ -130,7 +130,13 @@ Charge `signals.md`, `contexte.md`, et `roadmap*.md` si présente — sans fichi
 Étape 2b : si `<dossier>/agent_role.md` existe (zone-agent créée via `/create_agent`), la charger et
 l'afficher intégralement avant `signals.md`. Absent pour une zone racine classique.
 
-Étape 4c : après l'affichage intégral de `signals.md`, signale (sans rien déplacer) les éléments
+Étape 4 : par défaut, recopie mot pour mot « Prochaine étape exacte » et « Question bloquante » de la
+dernière session ; `--complet`, ou l'absence de l'une des deux sections, affiche `signals.md` en
+entier. Dans tous les cas, une ligne de compteurs (actions ouvertes, P1, backlog, phase en cours)
+termine l'affichage, les parties sans objet retirées. Étape 4b : seules
+les `réf:` des actions citées par la prochaine étape sont lues d'office.
+
+Étape 4c : sur l'intégralité de `signals.md` (pas seulement la partie affichée), signale (sans rien déplacer) les éléments
 manifestement mal classés : action d'une autre zone, action métier à la racine, doublon avec le
 `signals.md` de la zone propriétaire (lu effectivement avant de conclure ; « non vérifiable » seulement
 si le fichier n'existe pas). Les éléments déjà marqués `[à transférer vers <alias>]` sont résumés
@@ -141,7 +147,7 @@ Voir `templates/.claude/commands/start.md`.
 
 # /close [zone]
 
-> **Frontmatter :** le fichier `.claude/commands/close.md` porte `model: sonnet` et `allowed-tools` autorisant `git status/diff/add/commit/push` — plus de prompts de permission au commit ni au push de clôture.
+> **Frontmatter :** le fichier `.claude/commands/close.md` porte `model: sonnet` et `allowed-tools` autorisant `git status/diff/add/commit/remote/push` — plus de prompts de permission au commit ni au push de clôture. L'étape 14 est conditionnelle : pas de push si une règle projet l'interdit ou si `git remote` est vide.
 
 Étape 3-bis : chaque action, décision et point d'attention est attribué à sa zone propriétaire avant
 écriture ; la racine ne garde que la coordination transversale ; un écart entre la zone fermée et le
@@ -240,7 +246,7 @@ Script : voir `templates/ollama_call.py`.
 > $env:OLLAMA_LIVE_TEST = "1"
 > python -m unittest tests.test_ollama_call.OllamaCallTests.test_live_ollama_returns_a_response -v
 > ```
-> Le lanceur impose un délai maximal de 60 secondes et affiche une erreur lisible si l’API renvoie un JSON invalide ou une réponse inattendue.
+> Le lanceur utilise un délai de 180 secondes par défaut, paramétrable par `OLLAMA_TIMEOUT` (nombre positif de secondes), et affiche une erreur lisible si l’API renvoie un JSON invalide ou une réponse inattendue.
 
 ## Appel depuis Claude
 
@@ -328,7 +334,6 @@ VibeObs/
 | `{{ALIAS}}` | Alias court de la zone (ex: backend) |
 | `{{RACINE}}` | Chemin absolu de la racine du projet (argument fourni à `/init_projet`) |
 | `{{OBJECTIF}}` | Objectif du projet, 1-2 phrases |
-| `{{STACK}}` | Stack technique, liste courte |
 | `{{DATE}}` | Date du jour, AAAA-MM-JJ |
 
 Les placeholders apparaissent dans `templates/_contexte/*.md`, `templates/.claude/commands/*.md` et `templates/.claude/zones.md`. `CLAUDE.md`, `ollama_call.py` et `roadmap_TEMPLATE.md` sont génériques, copiés tels quels.

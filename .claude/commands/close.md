@@ -2,7 +2,7 @@
 description: Clôture la session d'une zone — synthèse, mise à jour du contexte, commit
 argument-hint: <zone>
 model: sonnet
-allowed-tools: Bash(git status:*), Bash(git diff:*), Bash(git add:*), Bash(git commit:*), Bash(git push:*), Bash(git check-ignore:*), Bash(git ls-files:*), Bash(git rev-parse:*), Bash(git show:*), PowerShell(python *backup_file.py*)
+allowed-tools: Bash(git status:*), Bash(git diff:*), Bash(git add:*), Bash(git commit:*), Bash(git push:*), Bash(git remote:*), Bash(git check-ignore:*), Bash(git ls-files:*), Bash(git rev-parse:*), Bash(git show:*), PowerShell(python *backup_file.py*)
 ---
 
 # /close <zone>
@@ -28,7 +28,10 @@ Lire `.claude/zones.md` pour obtenir la table des alias → dossiers réels.
    Non bloquant : en cas d'échec d'une commande du hook, le signaler en une ligne et poursuivre la
    clôture. Contrat des sections : `on_close_TEMPLATE.md` du kit.
 
-3. Produire une synthèse de session (< 25 lignes) au format suivant :
+3. Lire d'abord `<dossier>/_contexte/journal_session.md` s'il existe : chaque ligne est un élément à
+   intégrer (décision, livrable, action) et complète la mémoire de la conversation, que `/compact` a pu
+   amputer ; signaler toute contradiction entre le journal et la conversation.
+   Produire ensuite une synthèse de session (< 25 lignes) au format suivant :
 
 ```
 # Session du AAAA-MM-JJ
@@ -149,6 +152,15 @@ Lire `.claude/zones.md` pour obtenir la table des alias → dossiers réels.
    session (statuts des tâches et phases). Mettre à jour si périmée.
    Invariant : ce que lira le prochain `/start` doit être vrai.
 
+6-bis. **Registre des artifacts.** Pour chaque artifact claude.ai créé ou modifié pendant la session et
+   absent de `<dossier>/_contexte/artifacts.md` : demander à l'utilisateur s'il veut le conserver (une
+   question, réponse en un clic ; la lister par nom et lien). Oui : l'inscrire dans ce fichier (créé à la
+   première entrée), une ligne `nom | lien | rôle | source | MAJ AAAA-MM-JJ`, `source` = chemin,
+   versionné dans le dépôt, du fichier ou du script qui produit la page (ou « aucune »). Non : ne rien
+   écrire. Un artifact déjà inscrit est mis à jour sans question (même lien : pas de doublon). Une source
+   située dans un dossier temporaire (scratchpad) est copiée dans le dépôt pour un artifact conservé,
+   sinon signalée dans le bilan de l'étape 15. Le fichier est commité avec `_contexte/` à l'étape 13.
+
 7. Base de connaissances (`DOCUMENTATION/`), si la zone fermée n'est pas `documentation` elle-même :
    - Si `<racine du projet>/DOCUMENTATION/INDEX.md` n'existe pas (pas d'agent documentaire sur ce
      projet) : ignorer cette étape.
@@ -174,9 +186,10 @@ Lire `.claude/zones.md` pour obtenir la table des alias → dossiers réels.
    - Lire la dernière entrée de `CHANGELOG.md` pour extraire la version actuelle (ex: `v2.2`).
    - Si `CHANGELOG.md` n'existe pas : le créer avec l'en-tête `# Changelog` et une première entrée
      `## v0.1 — AAAA-MM-JJ` (pas de calcul de bump), puis passer à l'étape 10.
-   - Si la session n'a modifié ni créé aucun fichier hors `_contexte/`, `README.md` et
-     `CHANGELOG.md` (hors fichiers régénérés par les commandes de l'étape 12) : ne pas bumper la
-     version et n'ajouter aucune entrée.
+   - Si la session n'a modifié ni créé aucun fichier hors `_contexte/`, `README.md`,
+     `CHANGELOG.md`, `tests_manuels.md` et `roadmap*.md` (fichiers de suivi ; hors fichiers
+     régénérés par les commandes de l'étape 12) : ne pas bumper la version et n'ajouter aucune
+     entrée.
    - Déterminer le type de bump à partir de la synthèse de l'étape 3 :
      - **major** si : structure de `_contexte/` modifiée, placeholder renommé ou supprimé, commande supprimée
      - **minor** dans tous les autres cas
@@ -204,7 +217,8 @@ Lire `.claude/zones.md` pour obtenir la table des alias → dossiers réels.
    - Ne pas committer tant que des écarts non consignés persistent
 
 12. Relire les étapes 3 à 9 une par une et confirmer explicitement que chacune
-   a été exécutée (pas seulement planifiée). Si une étape a une commande associée (script de build,
+   a été exécutée (pas seulement planifiée). Vérifier aussi que chaque ligne du journal de session est reportée
+   dans la synthèse, `signals.md` ou `contexte.md`. Si une étape a une commande associée (script de build,
    régénération de vue, etc.) et qu'elle n'a pas encore été lancée dans cette session, l'exécuter
    maintenant, avant le commit — jamais après.
 
@@ -233,19 +247,25 @@ Lire `.claude/zones.md` pour obtenir la table des alias → dossiers réels.
     - Si une commande de génération a modifié des fichiers après le commit (cas non censé
       survenir avec l'étape 12, mais à vérifier via `git status` après coup) : les inclure dans
       ce même commit, jamais dans un commit séparé.
+    - Journal de session : une fois le commit constaté dans `git show --name-only HEAD` (sans dépôt git :
+      une fois l'étape 12 terminée), vider `<dossier>/_contexte/journal_session.md` de la zone fermée
+      (fichier conservé, contenu vide). Jamais avant. En cas d'échec du commit, le journal reste intact.
+      Le fichier est gitignoré : il n'est ni commité ni signalé comme fichier ignoré à l'étape 15.
 
-14. Exécuter `git push` :
+14. Push conditionnel. Si une règle du bloc `SPECIFICITES PROJET` de ce fichier ou de
+    `.claude/memory.md` interdit le push : ne pas exécuter `git push`, ne pas le proposer, ne pas
+    le mentionner dans le bilan. Sinon, lister d'abord les remotes :
     ```bash
-    git push
+    git remote
     ```
-    Si le projet n'a pas de remote configuré, ignorer cette étape silencieusement. Si le push
-    échoue (pas de remote tracking, conflit, réseau, etc.) : afficher l'erreur telle quelle dans
-    le bilan de l'étape 15, ne pas tenter de résolution automatique (pas de force push, pas de
-    pull/rebase automatique).
+    Sortie vide (aucun remote) : passer l'étape sans exécuter `git push` et sans la mentionner
+    dans le bilan. Au moins un remote : exécuter `git push`. Si le push échoue (pas de remote
+    tracking, conflit, réseau, etc.) : afficher l'erreur telle quelle dans le bilan de l'étape 15,
+    ne pas tenter de résolution automatique (pas de force push, pas de pull/rebase automatique).
 
 14-ter. **Hook de zone — Fin.** Si `<dossier>/_contexte/on_close.md` existe et contient une section
-    « Fin » : l'exécuter maintenant. Rien à faire sinon. Non bloquant. S'exécute même si le `git
-    push` de l'étape 14 a échoué : une sauvegarde de fin de session ne dépend pas du push.
+    « Fin » : l'exécuter maintenant. Rien à faire sinon. Non bloquant. S'exécute après le commit
+    de l'étape 13, que le push de l'étape 14 ait eu lieu, ait été sauté ou ait échoué.
 
 15. Afficher un bilan des résidus non commités :
     ```bash
