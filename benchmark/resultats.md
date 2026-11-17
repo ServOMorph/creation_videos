@@ -92,4 +92,4 @@ Prompt complet réécrit (sens de circulation, allure des piétons, caméra fixe
 
 | Cas | Modèle | Temps (s) | VRAM max (Mio) | Verdict de l'utilisateur |
 |-----|--------|-----------|----------------|--------------------------|
-| 5 scène urbaine | `i2v` | 3512,6 | 5549 | à noter |
+| 5 scène urbaine | `i2v` | 3512,6 | 5549 | commentaire : beaucoup d'incohérences, une voiture au premier plan avance à contresens puis repart, des voitures apparaissent sans raison (le ralenti n'est pas commenté) |

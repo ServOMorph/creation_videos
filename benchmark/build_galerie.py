@@ -107,18 +107,7 @@ def render(images, videos):
         if fix2:
             prompt = PROMPT2_EN
         key = "%s_%s" % (v["model"], v["case"])
-        rating = "".join(
-            '<div class="crit"><span>%s</span><span class="btns">%s</span></div>'
-            % (
-                label,
-                "".join(
-                    '<button type="button" data-k="%s" data-c="%d" data-v="%d">%d</button>'
-                    % (e(key), ci, n, n)
-                    for n in range(4)
-                ),
-            )
-            for ci, label in enumerate(CRITERIA)
-        )
+        rating = '<textarea class="com" data-k="%s" rows="3" placeholder="Commentaire"></textarea>' % e(key)
         return (
             '<figure class="vid" data-key="%s" data-model="%s" data-case="%s">'
             '<video src="%s" controls loop muted preload="metadata"></video>'
@@ -160,10 +149,7 @@ figcaption{padding:8px 10px;font-size:14px}
 .vide{color:var(--mut)}
 .pair{display:flex;flex-direction:column;gap:8px}
 .prompt{margin:6px 0;color:var(--mut);font-size:13px;font-style:italic}
-.crit{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:6px;font-size:13px}
-.btns{display:flex;gap:4px}
-.btns button{min-width:34px;min-height:34px;border:1px solid var(--mut);border-radius:6px;background:transparent;color:var(--fg);font:inherit;cursor:pointer}
-.btns button.on{background:var(--fg);color:var(--bg)}
+.com{box-sizing:border-box;width:100%%;margin-top:6px;padding:8px;border:1px solid var(--mut);border-radius:6px;background:transparent;color:var(--fg);font:inherit;resize:vertical}
 .bar{position:sticky;bottom:0;margin-top:20px;padding:10px 0;background:var(--bg)}
 .bar button{min-height:44px;padding:0 16px;border-radius:8px;border:1px solid var(--fg);background:var(--fg);color:var(--bg);font:inherit;cursor:pointer}
 pre{white-space:pre-wrap;background:var(--card);padding:10px;border-radius:8px;font-size:13px}
@@ -171,32 +157,31 @@ pre{white-space:pre-wrap;background:var(--card);padding:10px;border-radius:8px;f
 </style></head><body>
 <h1>Benchmark videos IA locales</h1>
 <p class="sub">%d image(s) de reference - %d video(s). 832x480, seeds fixes.</p>
-<p class="legende">Notes de 0 a 3 : 0 = rate, 1 = faible, 2 = correct, 3 = tres bon. Ordre : fidelite au prompt, coherence temporelle, qualite du mouvement, absence d'artefacts.</p>
+<p class="legende">Un commentaire libre par video, enregistre automatiquement.</p>
 <h2>Tests de correction (vitesse normale)</h2><div class="grid">%s</div>
 <h2>Image vers video (i2v) : image de reference puis video</h2><div class="grid">%s</div>
 <h2>Texte vers video (t2v)</h2>
 <div class="grid">%s</div>
 <div class="bar"><span id="etat" class="legende">Connexion...</span></div>
 <script>
-var S={},DB=null,E=document.getElementById("etat");
-try{S=JSON.parse(localStorage.getItem("notes")||"{}")}catch(x){}
-function local(){try{localStorage.setItem("notes",JSON.stringify(S))}catch(x){}}
-function paint(){document.querySelectorAll(".btns button").forEach(function(b){
-var a=S[b.dataset.k]||[];b.classList.toggle("on",a[b.dataset.c]===+b.dataset.v)})}
+var S={},DB=null,T={},E=document.getElementById("etat");
+try{S=JSON.parse(localStorage.getItem("commentaires")||"{}")}catch(x){}
+function local(){try{localStorage.setItem("commentaires",JSON.stringify(S))}catch(x){}}
+function paint(){document.querySelectorAll(".com").forEach(function(t){if(S[t.dataset.k]!==undefined&&document.activeElement!==t){t.value=S[t.dataset.k]}})}
 function figInfo(k){var f=document.querySelector('figure.vid[data-key="'+k+'"]');return {model:f.dataset.model,cas:+f.dataset.case}}
-function push(k){local();if(!DB){E.textContent="Notes gardees sur cet appareil seulement (base indisponible).";return}
+function push(k){local();if(!DB){E.textContent="Commentaires gardes sur cet appareil seulement (base indisponible).";return}
 var i=figInfo(k);
-DB.doc("notes/"+k).set({model:i.model,cas:i.cas,scores:S[k],updated:new Date().toISOString()})
-.then(function(){E.textContent="Note enregistree. Dites-moi 'notes faites' quand vous avez fini."},
-function(){E.textContent="Echec d'enregistrement ; note gardee sur cet appareil."})}
-document.addEventListener("click",function(ev){var b=ev.target.closest(".btns button");if(!b)return;
-var a=S[b.dataset.k]||[null,null,null,null];a[b.dataset.c]=+b.dataset.v;S[b.dataset.k]=a;paint();push(b.dataset.k)})
+DB.doc("commentaires/"+k).set({model:i.model,cas:i.cas,texte:S[k],updated:new Date().toISOString()})
+.then(function(){E.textContent="Commentaire enregistre. Dites-moi 'commentaires faits' quand vous avez fini."},
+function(){E.textContent="Echec d'enregistrement ; commentaire garde sur cet appareil."})}
+document.addEventListener("input",function(ev){var t=ev.target.closest(".com");if(!t)return;
+S[t.dataset.k]=t.value;local();clearTimeout(T[t.dataset.k]);T[t.dataset.k]=setTimeout(function(){push(t.dataset.k)},800)})
 paint();
-(function(){var t=setTimeout(function(){E.textContent="Base indisponible : notes gardees sur cet appareil seulement."},10000);
+(function(){var t=setTimeout(function(){E.textContent="Base indisponible : commentaires gardes sur cet appareil seulement."},10000);
 if(!window.claude||!claude.use){return}
-claude.use("db").then(function(d){clearTimeout(t);if(!d){E.textContent="Base indisponible : notes gardees sur cet appareil seulement.";return}
-DB=d;E.textContent="Notes enregistrees automatiquement.";
-d.collection("notes").get().then(function(snap){snap.forEach(function(doc){var v=doc.data();if(v&&v.scores){S[doc.id]=v.scores}});paint()},function(){})
+claude.use("db").then(function(d){clearTimeout(t);if(!d){E.textContent="Base indisponible : commentaires gardes sur cet appareil seulement.";return}
+DB=d;E.textContent="Commentaires enregistres automatiquement.";
+d.collection("commentaires").get().then(function(snap){snap.forEach(function(doc){var v=doc.data();if(v&&v.texte!==undefined&&S[doc.id]===undefined){S[doc.id]=v.texte}});paint()},function(){})
 },function(){})})()
 </script>
 </body></html>""" % (len(images), len(videos), fix_html, img_html, vid_html)

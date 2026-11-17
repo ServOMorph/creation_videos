@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.2 — 2026-11-17
+
+### Ajouté
+- Seconde correction du ralenti I2V (cas 5) consignée ; scripts `run.py`, `run_correction_i2v.py`.
+- Règle de journal de session (`_contexte/journal_session.md`, gitignoré).
+
+### Modifié
+- Stack figée : `t2v` et `i2v` définitifs ; artefact de revue : commentaire libre à la place des notes.
+
 ## v0.1 — 2026-11-12
 
 ### Ajouté
