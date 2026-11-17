@@ -2,9 +2,6 @@
 
 ## Actions ouvertes
 <!-- ≤ 20 entrées (ligne « Backlog » exclue) ; dette et findings non urgents -> _contexte/backlog.md -->
-- [P2|ouvert] Archiver la roadmap `roadmap_videos_ia_locale.md` (toutes les phases sont [FAIT]) : proposition à l'utilisateur, jamais sans son accord explicite
-  - fait quand: l'utilisateur accepte ou refuse l'archivage.
-  - réf: `roadmap_videos_ia_locale.md`.
 - [P2|ouvert] Vérifier si le suffixe « vitesse normale » corrige le ralenti sur d'autres cas T2V (testé uniquement sur le cas 3)
   - fait quand: au moins 2 autres cas T2V régénérés avec `--suffix` et jugés par l'utilisateur.
   - réf: `benchmark/resultats.md`.
@@ -38,7 +35,7 @@
 - EN ATTENTE : suffixe « vitesse normale » sur d'autres cas T2V ; limite I2V sur scène dense.
 
 ## Prochaine étape exacte
-Décider de l'archivage de la roadmap (toutes phases [FAIT]).
+Aucune étape planifiée ; choisir parmi les actions ouvertes (suffixe T2V, scène dense I2V, hook pre-push).
 
 ## Question bloquante pour la session suivante
-Archiver la roadmap ?
+Aucune

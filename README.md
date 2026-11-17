@@ -9,7 +9,7 @@ Création de vidéo avec IA locale sur ce PC (text-to-video, image-to-video).
 - Images de référence : Qwen-Image 2.1 via ComfyUI-Qwen.
 
 ## Structure
-- `roadmap_videos_ia_locale.md` : plan en 5 phases.
+- `_contexte/archive/roadmap_videos_ia_locale.md` : roadmap archivée (5 phases terminées).
 - `benchmark/` : critères, scripts, images de référence, résultats (`resultats.md`).
 
 ## Utilisation
